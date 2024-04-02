@@ -28,21 +28,21 @@ function ProfilePage() {
     const currentUser = useCurrentUser();
     const { id } = useParams();
 
-    const { setProfileData, handleFollow } = useSetProfileData();
+    const { setProfileData, handleFollow, handleUnfollow } = useSetProfileData();
     const { pageProfile } = useProfileData();
 
     const [profile] = pageProfile.results;
     const is_owner = currentUser?.username === profile?.owner;
-    
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [{ data: pageProfile }, { data: profilePosts }] = await Promise.all([
-                    axiosReq.get(`/profiles/${id}/`),
-                    axiosReq.get(`/posts/?owner__profile=${id}`),
-                ]);
-                setProfileData(prevState => ({
+                const [{ data: pageProfile }, { data: profilePosts }] =
+                    await Promise.all([
+                        axiosReq.get(`/profiles/${id}/`),
+                        axiosReq.get(`/posts/?owner__profile=${id}`),
+                    ]);
+                setProfileData((prevState) => ({
                     ...prevState,
                     pageProfile: { results: [pageProfile] },
                 }));
@@ -52,7 +52,7 @@ function ProfilePage() {
                 console.log(err);
             }
         };
-        fetchData()
+        fetchData();
     }, [id, setProfileData]);
 
     const mainProfile = (
@@ -88,7 +88,7 @@ function ProfilePage() {
                         (profile?.following_id ? (
                             <Button
                                 className={`${btnStyles.Button} ${btnStyles.BlackOutline}`}
-                                onClick={() => { }}
+                                onClick={() => handleUnfollow(profile)}
                             >
                                 unfollow
                             </Button>
@@ -122,9 +122,9 @@ function ProfilePage() {
                     next={() => fetchMoreData(profilePosts, setProfilePosts)}
                 />
             ) : (
-                <Asset 
-                    src={NoResults} 
-                    message={`No results found, ${profile?.owner} hasn't posted anything yet.`}
+                <Asset
+                    src={NoResults}
+                    message={`No results found, ${profile?.owner} hasn't posted yet.`}
                 />
             )}
         </>
